@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificação de Palavra</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        async function processWord(event) {
+            event.preventDefault();
+            const word = document.getElementById('word').value;
+            const response = await fetch('/process_word', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ word }),
+            });
+            const data = await response.json();
+            displayProcess(data.process);
+            displayResult(data.result);
+        }
+
+        function displayProcess(process) {
+            const processList = document.getElementById('process');
+            processList.innerHTML = '';
+            process.forEach(step => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `(${step[0]}, ${step[1]}) = ${step[2]}`;
+                processList.appendChild(listItem);
+            });
+        }
+
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = `Palavra ${result ? 'válida' : 'inválida'}`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Verificação de Palavra no AFD</h2>
+        <form onsubmit="processWord(event)">
+            <div class="form-group">
+                <label for="word">Palavra:</label>
+                <input type="text" class="form-control" id="word" name="word" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Verificar</button>
+        </form>
+        <div id="result" class="mt-3"></div>
+        <ul id="process" class="mt-3"></ul>
+        <br>
+        <a href="/" class="btn btn-secondary">Inserir Novo Autômato</a>
+    </div>
+</body>
+</html>

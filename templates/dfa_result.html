@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Conversão para AFD</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        async function processWord(event) {
+            event.preventDefault();
+            const word = document.getElementById('word').value;
+            const response = await fetch('/process_word', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ word }),
+            });
+            const data = await response.json();
+            displayProcess(data.process);
+            displayResult(data.result);
+        }
+
+        function displayProcess(process) {
+            const processList = document.getElementById('process');
+            processList.innerHTML = '';
+            process.forEach(step => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `(${step[0]}, ${step[1]}) = ${step[2]}`;
+                processList.appendChild(listItem);
+            });
+        }
+
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = `Palavra ${result ? 'válida' : 'inválida'}`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Resultado da Conversão para AFD</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Estado</th>
+                    {% for symbol in dfa['alphabet'] %}
+                        <th>{{ symbol }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for state in dfa['states'] %}
+                    <tr>
+                        <td>{{ state }}{% if state in dfa['final_states'] %}*{% endif %}</td>
+                        {% for symbol in dfa['alphabet'] %}
+                            <td>
+                                {% for transition in dfa['transitions'] %}
+                                    {% if transition[0] == state and transition[1] == symbol %}
+                                        {{ transition[2] }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+        <h2>Inserir Palavra para Verificação no AFD</h2>
+        <form onsubmit="processWord(event)">
+            <div class="form-group">
+                <label for="word">Palavra:</label>
+                <input type="text" class="form-control" id="word" name="word" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Verificar</button>
+        </form>
+        <div id="result" class="mt-3"></div>
+        <ul id="process" class="mt-3"></ul>
+        <br>
+        <a href="/automaton_actions" class="btn btn-secondary">Voltar</a>
+    </div>
+</body>
+</html>
