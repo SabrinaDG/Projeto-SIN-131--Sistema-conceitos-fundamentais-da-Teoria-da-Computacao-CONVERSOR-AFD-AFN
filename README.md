@@ -43,7 +43,7 @@ A aplicação utiliza Flask como servidor web. Os templates HTML são renderizad
 2. **Instale as Dependências**:
 
     ```bash
-    pip install
+    pip install -r requirements.txt
     ```
 
 3. **Acesse o App**:
