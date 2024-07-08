@@ -46,6 +46,12 @@ A aplicação utiliza Flask como servidor web. Os templates HTML são renderizad
     pip install -r requirements.txt
     ```
 
+3. **Execute a Aplicação**:
+
+    ```bash
+    python app.py
+    ```
+
 3. **Acesse o App**:
 
     Abra o navegador e vá para [http://127.0.0.1:5000](http://127.0.0.1:5000).
