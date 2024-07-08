@@ -32,7 +32,31 @@
 
         function displayResult(result) {
             const resultDiv = document.getElementById('result');
-            resultDiv.textContent = `Palavra ${result ? 'válida' : 'inválida'}`;
+            resultDiv.innerHTML = `Palavra ${result ? 'válida' : 'inválida'}`;
+        }
+
+        async function checkEquivalence(event) {
+            event.preventDefault();
+            const word = document.getElementById('equivalence_word').value;
+            const response = await fetch('/check_equivalence', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ word }),
+            });
+            const data = await response.json();
+            displayEquivalenceResult(data);
+        }
+
+        function displayEquivalenceResult(data) {
+            const resultDiv = document.getElementById('equivalence_result');
+            resultDiv.innerHTML = `
+                <p><strong>Palavra:</strong> ${data.word}</p>
+                <p><strong>AFN aceita:</strong> ${data.nfa_accepts ? 'Sim' : 'Não'}</p>
+                <p><strong>AFD aceita:</strong> ${data.dfa_accepts ? 'Sim' : 'Não'}</p>
+                <p><strong>Equivalentes:</strong> ${data.equivalent ? 'Sim' : 'Não'}</p>
+            `;
         }
     </script>
 </head>
@@ -76,7 +100,21 @@
         </form>
         <div id="result" class="mt-3"></div>
         <ul id="process" class="mt-3"></ul>
+        <hr>
+        <h2>Verificar Equivalência com o AFN Original</h2>
+        <form onsubmit="checkEquivalence(event)">
+            <div class="form-group">
+                <label for="equivalence_word">Palavra:</label>
+                <input type="text" class="form-control" id="equivalence_word" name="equivalence_word" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Verificar Equivalência</button>
+        </form>
+        <div id="equivalence_result" class="mt-3"></div>
         <br>
+        <!-- Botão para minimizar o DFA -->
+        <a href="/minimize_dfa" class="btn btn-warning ml-2">Minimizar DFA</a>
+        <!-- Fim do botão de minimização -->
+        <hr>
         <a href="/automaton_actions" class="btn btn-secondary">Voltar</a>
     </div>
 </body>

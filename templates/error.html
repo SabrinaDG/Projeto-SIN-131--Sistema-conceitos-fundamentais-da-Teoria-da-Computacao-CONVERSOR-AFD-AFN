@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro no Autômato</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Erro no Autômato</h4>
+                    <p>{{ message }}</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Informações do Autômato</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Tipo:</strong> {{ automaton['type'] }}</li>
+                            <li class="list-group-item"><strong>Alfabeto:</strong> {{ automaton['alphabet'] }}</li>
+                            <li class="list-group-item"><strong>Estados:</strong> {{ automaton['states'] }}</li>
+                            <li class="list-group-item"><strong>Estado Inicial:</strong> {{ automaton['initial_state'] }}</li>
+                            <li class="list-group-item"><strong>Estados Finais:</strong> {{ automaton['final_states'] }}</li>
+                            <li class="list-group-item">
+                                <strong>Transições:</strong>
+                                <ul class="list-group">
+                                    {% for transition in automaton['transitions'] %}
+                                        <li class="list-group-item">{{ transition }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a href="{{ url_for('input_automaton') }}" class="btn btn-primary">Voltar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (Optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

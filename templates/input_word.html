@@ -34,6 +34,31 @@
             const resultDiv = document.getElementById('result');
             resultDiv.textContent = `Palavra ${result ? 'válida' : 'inválida'}`;
         }
+
+        async function minimizeAutomaton(event) {
+            event.preventDefault();
+            const response = await fetch('/minimize_afd', {
+                method: 'POST',
+            });
+            if (response.ok) {
+                const data = await response.json();
+                displayMinimizedDFA(data.dfa);
+            } else {
+                const data = await response.json();
+                displayMinimizationError(data.message);
+            }
+        }
+
+        function displayMinimizedDFA(dfa) {
+            // Exibir o DFA minimizado (se necessário)
+            alert("Autômato minimizado com sucesso!");
+            // Lógica para exibir ou atualizar a visualização do DFA minimizado
+        }
+
+        function displayMinimizationError(message) {
+            alert(message);
+            // Lógica para lidar com o erro de minimização (se necessário)
+        }
     </script>
 </head>
 <body>
@@ -45,6 +70,7 @@
                 <input type="text" class="form-control" id="word" name="word" required>
             </div>
             <button type="submit" class="btn btn-primary">Verificar</button>
+            <a href="/minimize_dfa" class="btn btn-secondary">Minimizar</a>
         </form>
         <div id="result" class="mt-3"></div>
         <ul id="process" class="mt-3"></ul>

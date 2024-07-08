@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DFA Minimizado</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">AFD Minimizado</h1>
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Estado Atual</th>
+                    <th>Símbolo</th>
+                    <th>Próximo Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transition in dfa['transitions'] %}
+                <tr>
+                    <td>{{ transition[0] }}</td>
+                    <td>{{ transition[1] }}</td>
+                    <td>{{ transition[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>Estados Finais</h2>
+        <ul>
+            {% for final_state in dfa['final_states'] %}
+            <li>{{ final_state }}</li>
+            {% endfor %}
+        </ul>
+        <a href="/" class="btn btn-secondary">Inserir Novo Autômato</a>
+    </div>
+</body>
+</html>
