@@ -299,4 +299,4 @@ def minimize_dfa(dfa):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=5000)
