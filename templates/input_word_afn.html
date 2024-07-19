@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digite a Palavra para o AFN</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="container">
+  <h1 class="my-4">Digite a Palavra para o AFN</h1>
+  <form id="wordForm" class="mb-4">
+    <div class="form-group">
+      <label for="word">Palavra:</label>
+      <input type="text" id="word" name="word" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Verificar</button>
+  </form>
+
+  <div id="result" class="alert" role="alert"></div>
+
+  <!-- Textarea para exibir o resultado -->
+  <h2>Resultado do Processamento</h2>
+  <textarea id="result_textarea" class="form-control" rows="15" readonly></textarea>
+  <!-- Fim do textarea -->
+
+  <table class="table table-bordered mt-4" id="processTable">
+    <thead>
+      <tr>
+        <th>Estado</th>
+        <th>Palavra</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  
+  <!-- Botão de Voltar -->
+  <a href="/automaton_actions" class="btn btn-secondary mt-4">Voltar</a>
+  <!-- Fim do botão de Voltar -->
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const wordForm = document.getElementById('wordForm');
+      if (wordForm) {
+        wordForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const word = document.getElementById('word').value;
+          const url = '{{ url_for("get_automaton") }}'; // Rota para obter dados do autômato
+
+          fetch(url)
+            .then(response => response.json())
+            .then(automaton => {
+              if (!automaton) {
+                console.error('Erro ao obter o autômato do servidor.');
+                return;
+              }
+
+              console.log("Autômato recebido do servidor:", automaton);
+              console.log("Palavra enviada para o servidor:", word);
+
+              fetch('{{ url_for("process_afn_word") }}', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ automaton, word }),
+              })
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error('Erro na requisição: ' + response.status);
+                  }
+                  return response.json();
+                })
+                .then(data => {
+                  console.log("Resposta do servidor:", data);
+
+                  const resultDiv = document.getElementById('result');
+                  const resultTextarea = document.getElementById('result_textarea');
+
+                  // Preencher o div de resultado com uma mensagem de aceitação ou rejeição
+                  if (data.result) {
+                    resultDiv.className = 'alert alert-success';
+                    resultDiv.innerText = 'A palavra foi aceita.';
+                  } else {
+                    resultDiv.className = 'alert alert-danger';
+                    resultDiv.innerText = 'A palavra foi rejeitada.';
+                  }
+
+                  // Formatando e exibindo a resposta no textarea
+                  const formattedResult = `
+Recebido automato: ${JSON.stringify(automaton, null, 2)}
+Palavra a ser processada: ${word}
+${data.process.map((step, index) => `Passo ${index + 1}: ${step}`).join('\n')}
+Resposta enviada: ${JSON.stringify(data.result, null, 2)}
+                  `;
+                  resultTextarea.value = formattedResult;
+
+                  // Atualizando a tabela com o processo
+                  const processTable = document.getElementById('processTable').getElementsByTagName('tbody')[0];
+                  processTable.innerHTML = ''; // Limpar a tabela antes de preencher
+                  if (Array.isArray(data.process)) {
+                    data.process.forEach(step => {
+                      const row = processTable.insertRow();
+                      const statesCell = row.insertCell(0);
+                      const symbolCell = row.insertCell(1);
+                      statesCell.textContent = step[0];
+                      symbolCell.textContent = step[1] === 'ε' ? 'ε' : step[1];
+                    });
+                  } else {
+                    console.error('O retorno do servidor não contém um array "process".', data);
+                  }
+                })
+                .catch(error => {
+                  console.error('Erro:', error);
+                  const resultDiv = document.getElementById('result');
+                  resultDiv.className = 'alert alert-danger';
+                  resultDiv.innerText = 'Erro ao processar a palavra.';
+                });
+            })
+            .catch(error => {
+              console.error('Erro:', error);
+              const resultDiv = document.getElementById('result');
+              resultDiv.className = 'alert alert-danger';
+              resultDiv.innerText = 'Erro ao obter o autômato.';
+            });
+        });
+      } else {
+        console.error('Elemento #wordForm não encontrado.');
+      }
+    });
+  </script>
+</body>
+</html>

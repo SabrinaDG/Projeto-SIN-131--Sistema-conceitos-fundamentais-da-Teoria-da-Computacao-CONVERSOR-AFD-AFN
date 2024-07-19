@@ -296,6 +296,93 @@ def minimize_dfa(dfa):
         'transitions': minimized_transitions
     }
 
+@app.route("/input_word_afn")
+def input_word_afn():
+    return render_template("input_word_afn.html", afn=automaton)
+
+@app.route("/get_automaton")
+def get_automaton():
+    global automaton  # Assuming automaton is a global dictionary
+    return jsonify(automaton)
+
+@app.route("/process_afn_word", methods=['POST'])
+def process_afn_word():
+    data = request.get_json()
+
+    # Verifica se 'automaton' e 'word' estão presentes em data
+    if 'automaton' in data and 'word' in data:
+        automaton_data = data['automaton']
+        word = data['word']
+
+        print(f"Recebido automato: {automaton_data}")
+        print(f"Palavra a ser processada: {word}")
+
+        # Chama a função para simular o AFN e processar a palavra aqui
+        result, process = simulate_afn(automaton_data, word)
+
+        # Constrói a resposta JSON
+        if result is not None and process is not None:
+            response = {
+                'result': result,
+                'process': process
+            }
+            print(f"Resposta enviada: {response}")  # Log para verificar a resposta enviada
+            return jsonify(response)
+        else:
+            error_message = {'error': 'Erro ao simular AFN'}
+            print(f"Erro ao simular AFN: {error_message}")  # Log para verificar o erro
+            return jsonify(error_message), 500
+    else:
+        error_message = {'error': 'Dados incompletos'}
+        print(f"Dados incompletos: {error_message}")  # Log para verificar dados incompletos
+        return jsonify(error_message), 400
+
+
+def simulate_afn(automaton_data, word):
+    state = automaton_data["initial_state"]
+    process = []
+
+    # Inicializa os estados atuais com o fecho-épsilon do estado inicial
+    current_states = epsilon_closure(automaton_data, [state])
+    print(f"Estados iniciais: {current_states}")
+
+    for letter in word:
+        next_states = set()
+        for current_state in current_states:
+            # Verifica se há transições para o símbolo atual
+            for transition in automaton_data["transitions"]:
+                src, symbol, dest = transition
+                src = src.strip()
+                symbol = symbol.strip()
+                dest = dest.strip()
+
+                if src == current_state and symbol == letter:
+                    next_states.update(epsilon_closure(automaton_data, [dest]))
+                    print(f"Transição: {current_state} --({letter})--> {dest}, Fecho-épsilon: {epsilon_closure(automaton_data, [dest])}")
+
+        # Atualiza com o fecho-épsilon dos próximos estados após processar a letra
+        current_states = next_states
+        print(f"Estados após processar '{letter}': {current_states}")
+
+    # Verifica se algum dos estados atuais é estado final
+    accepted = any(state in automaton_data["final_states"] for state in current_states)
+
+    return accepted, process
+
+
+def epsilon_closure(automaton, states):
+    closure = set(states)
+    queue = deque(states)
+    while queue:
+        state = queue.popleft()
+        # Verifica se há transições epsilon do estado atual
+        if state in automaton["transitions"] and '' in automaton["transitions"][state]:
+            for next_state in automaton["transitions"][state]['']:
+                if next_state not in closure:
+                    closure.add(next_state)
+                    queue.append(next_state)
+    return frozenset(closure)
+
 
 
 if __name__ == "__main__":
