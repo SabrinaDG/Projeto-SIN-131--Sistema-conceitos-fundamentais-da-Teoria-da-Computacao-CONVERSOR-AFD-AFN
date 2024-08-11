@@ -3,7 +3,6 @@ from collections import defaultdict, deque
 
 app = Flask(__name__)
 
-# Dicionários para armazenar o autômato e o DFA
 automaton = {}
 dfa = None
 
@@ -157,24 +156,7 @@ def nfa_transitions(state, symbol, nfa):
     """Retorna os estados alcançáveis por transição no AFN."""
     return {trans[2] for trans in nfa["transitions"] if trans[0] == state and trans[1] == symbol}
 
-
-@app.route("/check_equivalence", methods=["POST"])
-def check_equivalence():
-    global automaton, dfa
-    word = request.json["word"]
-    nfa_accepts = nfa_accepts_word(automaton, word)  # Verifica aceitação no AFN
-    dfa_accepts, _ = simulate_dfa(dfa, word)         # Verifica aceitação no AFD
-    
-    equivalent = nfa_accepts == dfa_accepts  # Verifica se são equivalentes
-    
-    return jsonify({
-        "word": word,
-        "nfa_accepts": nfa_accepts,
-        "dfa_accepts": dfa_accepts,
-        "equivalent": equivalent
-    })
-
-
+# Erro na função de minimizar- verificar
 @app.route("/minimize_dfa")
 def minimize_dfa_view():
     global dfa
@@ -302,14 +284,13 @@ def input_word_afn():
 
 @app.route("/get_automaton")
 def get_automaton():
-    global automaton  # Assuming automaton is a global dictionary
+    global automaton  
     return jsonify(automaton)
 
 @app.route("/process_afn_word", methods=['POST'])
 def process_afn_word():
     data = request.get_json()
 
-    # Verifica se 'automaton' e 'word' estão presentes em data
     if 'automaton' in data and 'word' in data:
         automaton_data = data['automaton']
         word = data['word']
@@ -317,24 +298,23 @@ def process_afn_word():
         print(f"Recebido automato: {automaton_data}")
         print(f"Palavra a ser processada: {word}")
 
-        # Chama a função para simular o AFN e processar a palavra aqui
+
         result, process = simulate_afn(automaton_data, word)
 
-        # Constrói a resposta JSON
         if result is not None and process is not None:
             response = {
                 'result': result,
                 'process': process
             }
-            print(f"Resposta enviada: {response}")  # Log para verificar a resposta enviada
+            print(f"Resposta enviada: {response}")  
             return jsonify(response)
         else:
             error_message = {'error': 'Erro ao simular AFN'}
-            print(f"Erro ao simular AFN: {error_message}")  # Log para verificar o erro
+            print(f"Erro ao simular AFN: {error_message}")  
             return jsonify(error_message), 500
     else:
         error_message = {'error': 'Dados incompletos'}
-        print(f"Dados incompletos: {error_message}")  # Log para verificar dados incompletos
+        print(f"Dados incompletos: {error_message}")
         return jsonify(error_message), 400
 
 
@@ -369,7 +349,7 @@ def simulate_afn(automaton_data, word):
 
     return accepted, process
 
-
+# Calcula o fecho-épsilon para um conjunto de estados, que é um conjunto de estados alcançáveis através de transições epsilon.
 def epsilon_closure(automaton, states):
     closure = set(states)
     queue = deque(states)

@@ -8,7 +8,7 @@
         async function processWord(event) {
             event.preventDefault();
             const word = document.getElementById('word').value;
-            const response = await fetch('/process_word', {  // Endpoint para o AFD
+            const response = await fetch('/process_word', {  
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
