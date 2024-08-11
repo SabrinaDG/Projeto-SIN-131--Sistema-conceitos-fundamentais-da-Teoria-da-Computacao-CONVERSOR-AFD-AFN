@@ -1,4 +1,4 @@
-# Autômatos - Conversão, Inserção e Minimização
+# Autômatos - Conversão, Inserção, Minimização e Equivalência
 
 Este projeto implementa funcionalidades relacionadas a autômatos finitos determinísticos (AFD) e não-determinísticos (AFN), utilizando Flask para o backend e HTML com Bootstrap para o frontend.
 
@@ -20,12 +20,12 @@ A funcionalidade de minimização de AFD é implementada utilizando o algoritmo 
 
 Por meio de inerção de palavra, verifica-se eles são equivalentes ou não
 
-A diferença na maneira como as transições dos autômatos são tratadas em cada código impactou a capacidade de conversão de AFN para AFD no Arquivo Projeto-SIN-131--Sistema-conceitos-fundamentais-da-Teoria-da-Computacao. Enquanto o Arquivo Projeto-SIN-131--Sistema-conceitos-fundamentais-da-Teoria-da-Computacao-CONVERSOR-AFD-AFN organiza as transições de maneira que facilita a construção do AFD, o Arquivo Projeto-SIN-131--Sistema-conceitos-fundamentais-da-Teoria-da-Computacao armazena as transições em um formato que não se ajusta bem à lógica de conversão, resultando em dificuldades na criação do AFD equivalente. Portanto, para a conversão e verificação de equivalência, é necessário utilizar o Arquivo Projeto-SIN-131--Sistema-conceitos-fundamentais-da-Teoria-da-Computacao-CONVERSOR-AFD-AFN , onde a estrutura de transições é mais compatível com as operações necessárias para a construção e manipulação do AFD.
+Neste caso, ao salvar o AFN, vai para a parte de validar a palavra em AFN e depois ao clicar no botão de "converter para AFD", basta inserir a mesma palavra inserida na página anterior e verificar se a mesma é válida ou não.
 
 
 ### Verificação de Palavras
 
-A aplicação permite verificar se uma palavra é aceita por um autômato determinístico (AFD) inserido pelo usuário. A verificação é feita através da simulação do autômato para a palavra fornecida.
+A aplicação permite verificar se uma palavra é aceita por um autômato determinístico (AFD) e autômato finito não-determinístico (AFN) inserido pelo usuário. A verificação é feita através da simulação do autômato para a palavra fornecida.
 
 ## Funcionamento da Aplicação
 
