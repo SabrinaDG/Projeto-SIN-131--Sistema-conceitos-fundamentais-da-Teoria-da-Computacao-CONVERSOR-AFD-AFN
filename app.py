@@ -170,56 +170,49 @@ def minimize_dfa_view():
     return render_template("dfa_minimized.html", dfa=minimized_dfa)
 
 def minimize_dfa(dfa):
-    alphabet = [symbol.strip() for symbol in dfa['alphabet']]
-    states = [state.strip() for state in dfa['states']]
-    initial_state = dfa['initial_state'].strip()
-    final_states = set(state.strip() for state in dfa['final_states'])
-    transitions = [(trans[0].strip(), trans[1].strip(), trans[2].strip()) for trans in dfa['transitions']]
+    from collections import defaultdict
+    
+    alphabet = dfa['alphabet']
+    states = dfa['states']
+    initial_state = dfa['initial_state']
+    final_states = set(dfa['final_states'])
+    transitions = dfa['transitions']
 
     # Construir a tabela de equivalência inicial
-    equivalence_table = defaultdict(lambda: defaultdict(bool))
+    equivalence_table = defaultdict(lambda: defaultdict(lambda: False))
 
-    # Passo 1: Marcar estados finalizados e não finalizados como não equivalentes
+    # Marcar estados finalizados e não finalizados como não equivalentes
     for i in range(len(states)):
         for j in range(i + 1, len(states)):
             state1, state2 = states[i], states[j]
-            # Se um estado é final e o outro não, são considerados não equivalentes
-            if ((state1 in final_states) != (state2 in final_states)) or (state1 in final_states and state2 in final_states):
+            if (state1 in final_states) != (state2 in final_states):
                 equivalence_table[state1][state2] = True
 
-    # Passo 2: Propagar a não-equivalência
-    pending = deque()
-    for i in range(len(states)):
-        for j in range(i+1, len(states)):
-            state1, state2 = states[i], states[j]
-            if equivalence_table[state1][state2]:
-                continue
-            for symbol in alphabet:
-                next_state1 = next_state2 = None
-                for trans in transitions:
-                    if trans[0] == state1 and trans[1] == symbol:
-                        next_state1 = trans[2]
-                    if trans[0] == state2 and trans[1] == symbol:
-                        next_state2 = trans[2]
-                if next_state1 and next_state2 and next_state1 != next_state2:
-                    if next_state1 > next_state2:
-                        next_state1, next_state2 = next_state2, next_state1
-                    if equivalence_table[next_state1][next_state2]:
-                        equivalence_table[state1][state2] = True
-                    else:
-                        pending.append((state1, state2, next_state1, next_state2))
+    # Propagar a não-equivalência
+    changed = True
+    while changed:
+        changed = False
+        for i in range(len(states)):
+            for j in range(i + 1, len(states)):
+                state1, state2 = states[i], states[j]
+                if equivalence_table[state1][state2]:
+                    continue
+                for symbol in alphabet:
+                    next_state1, next_state2 = None, None
+                    for trans in transitions:
+                        if trans[0] == state1 and trans[1] == symbol:
+                            next_state1 = trans[2]
+                        if trans[0] == state2 and trans[1] == symbol:
+                            next_state2 = trans[2]
+                    if next_state1 and next_state2 and next_state1 != next_state2:
+                        if next_state1 > next_state2:
+                            next_state1, next_state2 = next_state2, next_state1
+                        if equivalence_table[next_state1][next_state2]:
+                            equivalence_table[state1][state2] = True
+                            changed = True
+                            break
 
-    while pending:
-        state1, state2, next_state1, next_state2 = pending.popleft()
-        if equivalence_table[next_state1][next_state2]:
-            equivalence_table[state1][state2] = True
-
-    # Verificar se o DFA já está minimizado
-    all_pairs = [(state1, state2) for state1 in states for state2 in states if state1 != state2]
-    if all(equivalence_table[state1][state2] for state1, state2 in all_pairs):
-        return None  # Retorna None indicando que o DFA não pode ser minimizado mais
-
-    # Passo 3: Agrupar estados equivalentes
+    # Agrupar estados equivalentes
     equivalence_classes = {}
     state_to_class = {}
     for state in states:
@@ -232,12 +225,11 @@ def minimize_dfa(dfa):
             equivalence_classes[state] = {state}
             state_to_class[state] = state
 
-    # Passo 4: Construir o DFA minimizado
+    # Construir o DFA minimizado
     minimized_states = list(equivalence_classes.keys())
     minimized_transitions = []
-    minimized_final_states = [state_to_class[state] for state in final_states]
+    minimized_final_states = {state_to_class[state] for state in final_states}
 
-    # Construir transições únicas para o AFD minimizado
     added_transitions = set()
     for class_state, class_group in equivalence_classes.items():
         for symbol in alphabet:
@@ -253,30 +245,32 @@ def minimize_dfa(dfa):
 
     minimized_initial_state = state_to_class[initial_state]
 
-    # Passo 5: Identificar estados alcançáveis
+    # Identificar estados alcançáveis
     reachable_states = set()
     to_process = [minimized_initial_state]
-
     while to_process:
         current = to_process.pop()
         if current not in reachable_states:
             reachable_states.add(current)
-            for symbol in alphabet:
-                for trans in minimized_transitions:
-                    if trans[0] == current and trans[1] == symbol:
-                        to_process.append(trans[2])
+            for trans in minimized_transitions:
+                if trans[0] == current:
+                    to_process.append(trans[2])
 
     minimized_transitions = [trans for trans in minimized_transitions if trans[0] in reachable_states]
     minimized_states = [state for state in minimized_states if state in reachable_states]
     minimized_final_states = [state for state in minimized_final_states if state in reachable_states]
 
+    if len(minimized_states) == len(states) and len(minimized_transitions) == len(transitions):
+        return None  # DFA já está minimizado
+
     return {
         'alphabet': alphabet,
         'states': minimized_states,
         'initial_state': minimized_initial_state,
-        'final_states': list(set(minimized_final_states)),
+        'final_states': list(minimized_final_states),
         'transitions': minimized_transitions
     }
+
 
 @app.route("/input_word_afn")
 def input_word_afn():
