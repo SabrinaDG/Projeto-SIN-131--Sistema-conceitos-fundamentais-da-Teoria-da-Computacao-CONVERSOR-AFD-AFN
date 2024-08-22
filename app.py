@@ -156,18 +156,15 @@ def nfa_transitions(state, symbol, nfa):
     """Retorna os estados alcançáveis por transição no AFN."""
     return {trans[2] for trans in nfa["transitions"] if trans[0] == state and trans[1] == symbol}
 
-# Erro na função de minimizar- verificar
+# Minimização
 @app.route("/minimize_dfa")
 def minimize_dfa_view():
     global dfa
-    if dfa is None or not is_dfa(dfa):
-        return render_template("error.html", message="Não é possível minimizar. Verifique se o autômato é um DFA válido.", automaton=dfa)
-    
-    minimized_dfa = minimize_dfa(dfa)
-    if minimized_dfa is None:
-        return render_template("error.html", message="O autômato já está minimizado ou não pode ser minimizado.", automaton=dfa)
 
+    minimized_dfa = minimize_dfa(dfa)
+    
     return render_template("dfa_minimized.html", dfa=minimized_dfa)
+
 
 def minimize_dfa(dfa):
     from collections import defaultdict
