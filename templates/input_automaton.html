@@ -1,43 +1,88 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Entrada de Autômato</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="container mt-4">
-        <h2>Entrada de Autômato</h2>
-        <form action="{{ url_for('save_automaton') }}" method="POST">
-            <div class="form-group">
-                <label for="automaton_type">Tipo de Autômato:</label>
-                <select class="form-control" id="automaton_type" name="automaton_type">
-                    <option value="AFD">AFD</option>
-                    <option value="AFN">AFN</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="alphabet">Alfabeto (separado por vírgulas):</label>
-                <input type="text" class="form-control" id="alphabet" name="alphabet" required>
-            </div>
-            <div class="form-group">
-                <label for="states">Estados (separados por vírgulas):</label>
-                <input type="text" class="form-control" id="states" name="states" required>
-            </div>
-            <div class="form-group">
-                <label for="initial_state">Estado Inicial:</label>
-                <input type="text" class="form-control" id="initial_state" name="initial_state" required>
-            </div>
-            <div class="form-group">
-                <label for="final_states">Estados Finais (separados por vírgulas):</label>
-                <input type="text" class="form-control" id="final_states" name="final_states" required>
-            </div>
-            <div class="form-group">
-                <label for="transitions">Transições (uma por linha no formato 'estado,símbolo,estado'):</label>
-                <textarea class="form-control" id="transitions" name="transitions" rows="5" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Salvar</button>
-        </form>
+      <h2>Entrada de Autômato</h2>
+      <form action="{{ url_for('save_automaton') }}" method="POST">
+        <div class="form-group">
+          <label for="automaton_type">Tipo de Autômato:</label>
+          <select
+            class="form-control"
+            id="automaton_type"
+            name="automaton_type"
+          >
+            <option value="AFD">AFD</option>
+            <option value="AFN">AFN</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="alphabet">Alfabeto (separado por vírgulas):</label>
+          <input
+            type="text"
+            class="form-control"
+            id="alphabet"
+            name="alphabet"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="states">Estados (separados por vírgulas):</label>
+          <input
+            type="text"
+            class="form-control"
+            id="states"
+            name="states"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="initial_state">Estado Inicial:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="initial_state"
+            name="initial_state"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="final_states"
+            >Estados Finais (separados por vírgulas):</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="final_states"
+            name="final_states"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="transitions"
+            >Transições (uma por linha no formato
+            'estado,símbolo,estado'):</label
+          >
+          <textarea
+            class="form-control"
+            id="transitions"
+            name="transitions"
+            rows="5"
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </form>
+      <div class="mt-3">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Voltar</a>
+      </div>
     </div>
-</body>
+  </body>
 </html>

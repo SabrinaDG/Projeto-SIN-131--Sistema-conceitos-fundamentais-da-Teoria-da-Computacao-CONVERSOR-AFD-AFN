@@ -6,9 +6,13 @@ app = Flask(__name__)
 automaton = {}
 dfa = None
 
-@app.route("/")
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/input_automaton')
 def input_automaton():
-    return render_template("input_automaton.html")
+    return render_template('input_automaton.html')
 
 @app.route("/save_automaton", methods=["POST"])
 def save_automaton():
