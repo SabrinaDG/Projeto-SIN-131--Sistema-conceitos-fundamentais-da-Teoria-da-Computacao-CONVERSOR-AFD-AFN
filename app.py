@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 
 app = Flask(__name__)
 
+#Variavéis globais
 automaton = {}
 dfa = None
 
@@ -179,10 +180,8 @@ def minimize_dfa(dfa):
     final_states = set(dfa['final_states'])
     transitions = dfa['transitions']
 
-    # Construir a tabela de equivalência inicial
     equivalence_table = defaultdict(lambda: defaultdict(lambda: False))
 
-    # Marcar estados finalizados e não finalizados como não equivalentes
     for i in range(len(states)):
         for j in range(i + 1, len(states)):
             state1, state2 = states[i], states[j]
@@ -262,7 +261,7 @@ def minimize_dfa(dfa):
     minimized_final_states = [state for state in minimized_final_states if state in reachable_states]
 
     if len(minimized_states) == len(states) and len(minimized_transitions) == len(transitions):
-        return None  # DFA já está minimizado
+        return None  
 
     return {
         'alphabet': alphabet,
@@ -317,14 +316,13 @@ def simulate_afn(automaton_data, word):
     state = automaton_data["initial_state"]
     process = []
 
-    # Inicializa os estados atuais com o fecho-épsilon do estado inicial
     current_states = epsilon_closure(automaton_data, [state])
     print(f"Estados iniciais: {current_states}")
 
     for letter in word:
         next_states = set()
         for current_state in current_states:
-            # Verifica se há transições para o símbolo atual
+ 
             for transition in automaton_data["transitions"]:
                 src, symbol, dest = transition
                 src = src.strip()
@@ -335,11 +333,9 @@ def simulate_afn(automaton_data, word):
                     next_states.update(epsilon_closure(automaton_data, [dest]))
                     print(f"Transição: {current_state} --({letter})--> {dest}, Fecho-épsilon: {epsilon_closure(automaton_data, [dest])}")
 
-        # Atualiza com o fecho-épsilon dos próximos estados após processar a letra
         current_states = next_states
         print(f"Estados após processar '{letter}': {current_states}")
 
-    # Verifica se algum dos estados atuais é estado final
     accepted = any(state in automaton_data["final_states"] for state in current_states)
 
     return accepted, process
@@ -350,7 +346,6 @@ def epsilon_closure(automaton, states):
     queue = deque(states)
     while queue:
         state = queue.popleft()
-        # Verifica se há transições epsilon do estado atual
         if state in automaton["transitions"] and '' in automaton["transitions"][state]:
             for next_state in automaton["transitions"][state]['']:
                 if next_state not in closure:
@@ -358,6 +353,88 @@ def epsilon_closure(automaton, states):
                     queue.append(next_state)
     return frozenset(closure)
 
+@app.route('/input_turing_machine')
+def input_turing_machine():
+    return render_template('input_turing_machine.html')
+
+@app.route('/save_turing_machine', methods=['POST'])
+def save_turing_machine():
+    global turing_machine
+    turing_machine = {
+        "states": request.form["states"].split(","),
+        "alphabet": request.form["alphabet"].split(","),
+        "tape_alphabet": request.form["tape_alphabet"].split(","),
+        "transitions": []
+    }
+
+    transitions = request.form["transitions"].strip().split("\n")
+    for t in transitions:
+        state, symbol, next_state, write_symbol, direction = t.split(",")
+        turing_machine["transitions"].append({
+            "state": state.strip(),
+            "symbol": symbol.strip(),
+            "next_state": next_state.strip(),
+            "write_symbol": write_symbol.strip(),
+            "direction": direction.strip()
+        })
+
+    turing_machine["initial_state"] = request.form["initial_state"]
+    turing_machine["accept_states"] = request.form["accept_states"].split(",")
+    turing_machine["reject_states"] = request.form["reject_states"].split(",")
+
+    return redirect(url_for("input_tape"))
+
+@app.route('/input_tape')
+def input_tape():
+    return render_template('input_tape.html')
+
+@app.route('/process_tape', methods=['POST'])
+def process_tape():
+    global turing_machine
+    tape = request.json["tape"]
+    result, process = simulate_turing_machine(turing_machine, tape)
+    return jsonify({"result": result, "process": process})
+
+def simulate_turing_machine(turing_machine, input_tape):
+    tape = list(input_tape)
+    current_state = turing_machine["initial_state"]
+    head_position = 0
+    process = []
+
+    tape.append("_") 
+
+    while True:
+        current_symbol = tape[head_position] if 0 <= head_position < len(tape) else "_"
+        transition = next((t for t in turing_machine["transitions"] 
+                           if t["state"] == current_state and t["symbol"] == current_symbol), None)
+
+        if transition is None:
+            break  
+
+        tape[head_position] = transition["write_symbol"]
+        process.append((current_state, current_symbol, transition["write_symbol"], head_position))
+
+        current_state = transition["next_state"]
+        if transition["direction"] == "R":
+            head_position += 1
+        elif transition["direction"] == "L":
+            head_position -= 1
+
+        if head_position < 0:
+            return "Não", process 
+        
+        #Verificação de estado de aceitação
+        if current_state in turing_machine["accept_states"]:
+            return "Sim", process
+        elif current_state in turing_machine["reject_states"]:
+            return "Não", process
+
+    return "Não", process  # Se não for aceito
+
+@app.route('/get_turing_machine')
+def get_turing_machine():
+    global turing_machine
+    return jsonify(turing_machine)
 
 
 if __name__ == "__main__":
