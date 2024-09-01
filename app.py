@@ -171,9 +171,7 @@ def minimize_dfa_view():
     return render_template("dfa_minimized.html", dfa=minimized_dfa)
 
 
-def minimize_dfa(dfa):
-    from collections import defaultdict
-    
+def minimize_dfa(dfa):    
     alphabet = dfa['alphabet']
     states = dfa['states']
     initial_state = dfa['initial_state']
@@ -291,7 +289,6 @@ def process_afn_word():
 
         print(f"Recebido automato: {automaton_data}")
         print(f"Palavra a ser processada: {word}")
-
 
         result, process = simulate_afn(automaton_data, word)
 
