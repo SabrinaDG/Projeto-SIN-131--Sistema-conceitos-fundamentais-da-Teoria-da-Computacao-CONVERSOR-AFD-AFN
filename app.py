@@ -144,18 +144,18 @@ def convert_nfa_to_dfa(automaton):
         'transitions': [(k[0], k[1], v) for k, v in dfa_transitions.items()]
     }
 
-def nfa_accepts_word(nfa, word):
-    """Verifica se o NFA aceita a palavra dada."""
-    current_states = set([nfa["initial_state"]])
+# def nfa_accepts_word(nfa, word):
+#     """Verifica se o NFA aceita a palavra dada."""
+#     current_states = set([nfa["initial_state"]])
     
-    for symbol in word:
-        next_states = set()
-        for state in current_states:
-            next_states.update(nfa_transitions(state, symbol, nfa))
-        current_states = next_states
+#     for symbol in word:
+#         next_states = set()
+#         for state in current_states:
+#             next_states.update(nfa_transitions(state, symbol, nfa))
+#         current_states = next_states
     
-    # Verifica se algum estado alcançado é final
-    return any(state in nfa["final_states"] for state in current_states)
+#      Verifica se algum estado alcançado é final
+#     return any(state in nfa["final_states"] for state in current_states)
 
 def nfa_transitions(state, symbol, nfa):
     """Retorna os estados alcançáveis por transição no AFN."""
