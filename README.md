@@ -1,4 +1,4 @@
-# Autômatos - Conversão, Inserção, Minimização e Equivalência
+# Autômatos - Conversão, Inserção, Minimização, Equivalência e Máquina de Turing
 
 Este projeto implementa funcionalidades relacionadas a autômatos finitos determinísticos (AFD) e não-determinísticos (AFN), utilizando Flask para o backend e HTML com Bootstrap para o frontend.
 
@@ -26,6 +26,10 @@ Neste caso, ao salvar o AFN, vai para a parte de validar a palavra em AFN e depo
 ### Verificação de Palavras
 
 A aplicação permite verificar se uma palavra é aceita por um autômato determinístico (AFD) e autômato finito não-determinístico (AFN) inserido pelo usuário. A verificação é feita através da simulação do autômato para a palavra fornecida.
+
+### Máquina de Turing
+
+A Máquina de Turing é um modelo teórico de computação que serve como uma base para entender a computabilidade e a complexidade de algoritmos. No contexto deste projeto, a implementação da Máquina de Turing permite simular o processamento de cadeias de caracteres, avaliando sua aceitação por meio de estados e transições definidas.
 
 ## Funcionamento da Aplicação
 
