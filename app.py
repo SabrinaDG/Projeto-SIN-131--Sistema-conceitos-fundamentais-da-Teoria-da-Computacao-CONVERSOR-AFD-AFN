@@ -426,7 +426,7 @@ def simulate_turing_machine(turing_machine, input_tape):
         elif current_state in turing_machine["reject_states"]:
             return "Não", process
 
-    return "Não", process  # Se não for aceito
+    return "Não", process 
 
 @app.route('/get_turing_machine')
 def get_turing_machine():
